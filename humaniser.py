@@ -4,20 +4,22 @@ import time
 import tkinter as tk
 from tkinter import scrolledtext
 import string
-from tkinter import messagebox 
+from tkinter import messagebox
 
 
 def type_with_random_delay(text, min_delay, max_delay):
     for char in text:
-        # Random chance to make a typp
-        if random.random() < 0.15: 
+        # Get slider value as a percentage (0–99), convert to threshold between 0 and 1
+        threshold = current_value.get() / 100.0
+
+        if random.random() < threshold:
             wrong_char = random.choice(string.ascii_letters + string.punctuation + string.digits)
             keyboard.write(wrong_char)
             time.sleep(random.uniform(0.05, 0.3))
             keyboard.press_and_release("backspace")
             time.sleep(random.uniform(0.05, 0.3))
 
-        # Type the correct charactor
+        # Type the correct character
         keyboard.write(char)
         time.sleep(random.uniform(min_delay, max_delay))
 
@@ -40,11 +42,8 @@ def get_input():
     keyboard.press_and_release("backspace")
 
     if len(user_text.split()) > 1:
-        # Only type once now
         type_with_random_delay(user_text, min_delay, max_delay)
         keyboard.press_and_release('enter')
-
-        # Show info box when done
         messagebox.showinfo("INFO!!!!!!", "done :D")
     else:
         print("Text must contain multiple words to trigger the action.")
@@ -52,7 +51,7 @@ def get_input():
 # Create main window
 root = tk.Tk()
 root.title("Text Inputer by Aleks R.") #by me:)
-root.geometry("500x500")
+root.geometry("500x650")
 
 # Label
 tk.Label(root, text="Enter your text below, then click Submit and press SPACE", font=("Comic Sans MS", 12)).pack(pady=5)
@@ -78,10 +77,31 @@ max_delay_box.grid(row=0, column=3, padx=5)
 # Recommended text
 tk.Label(root, text="Recommended 0.05 to 0.3 delay to make it more human", font=("Comic Sans MS", 10), fg="gray").pack(pady=2)
 
+# Slider bar
+current_value = tk.DoubleVar()
+
+def slider_changed(event):
+    value_label.config(text=f"Mistakes as a percentage: {current_value.get():.2f}")
+
+slider = tk.Scale(
+    root,
+    from_=0,
+    to=99,
+    orient="horizontal",
+    variable=current_value,
+    command=slider_changed
+)
+slider.pack(pady=20)
+slider.set(15)
+
+value_label = tk.Label(root, text="Mistake percentage: 0.00")
+value_label.pack()
+tk.Label(root, text="Recommended: 15%", font=("Comic Sans MS", 10), fg="gray").pack(pady=2)
+
 # Button to get input
 tk.Button(root, text="Submit", command=get_input, font=("Comic Sans MS", 30)).pack(pady=10)
 
-# copyright text
+# Copyright text
 tk.Label(root, text="(R) Aleks R. 2025", font=("Comic Sans MS", 10), fg="gray").pack(pady=2)
 
 root.mainloop()
